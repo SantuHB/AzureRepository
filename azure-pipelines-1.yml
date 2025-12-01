@@ -1,50 +1,50 @@
 trigger:
-- master
+  - master
 
 pool:
-  vmImage: 'windows-latest'
+  name: devopsagent   # Replace with your self-hosted agent pool name
 
 variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.x' # Adjust this to your actual . NET version if different
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '8.x' # Adjust if your . NET SDK version differs
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- task: DotNetCoreCLI@2
-  displayName: Restore NuGet packages
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
+  - task: DotNetCoreCLI@2
+    displayName: Restore NuGet packages
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
 
-- task: DotNetCoreCLI@2
-  displayName: Build solution
-  inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: Build solution
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: Run tests
-  inputs:
-    command: 'test'
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-build --verbosity normal'
+  - task: DotNetCoreCLI@2
+    displayName: Run tests
+    inputs:
+      command: 'test'
+      projects: '**/*Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-build --verbosity normal'
 
-- task: DotNetCoreCLI@2
-  displayName: Publish artifacts
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
+  - task: DotNetCoreCLI@2
+    displayName: Publish artifacts
+    inputs:
+      command: 'publish'
+      publishWebProjects: true
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      zipAfterPublish: true
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
 
